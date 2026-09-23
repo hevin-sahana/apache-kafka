@@ -98,8 +98,13 @@ FastAPI provides the application entry point. The client sends an order to an HT
 ```python
 from confluent_kafka import Producer
 
+bootstrap_servers = os.getenv(
+    "KAFKA_BOOTSTRAP_SERVERS",
+    "localhost:9092"
+)
+
 producer = Producer({
-    "bootstrap.servers": "localhost:9092"
+    "bootstrap.servers": bootstrap_servers
 })
 ```
 
@@ -142,8 +147,14 @@ It confirms successful producer delivery according to the producer's delivery re
 The consumer uses a named consumer group and disables automatic commits so that the application controls when processing progress is committed.
 
 ```python
+
+bootstrap_servers = os.getenv(
+    "KAFKA_BOOTSTRAP_SERVERS",
+    "localhost:9092"
+)
+
 consumer = Consumer({
-    "bootstrap.servers": "localhost:9092",
+    "bootstrap.servers": bootstrap_servers,
     "group.id": "order-consumer-group",
     "auto.offset.reset": "earliest",
     "enable.auto.commit": False
@@ -249,6 +260,144 @@ Read ≠ Commit
 ```
 
 A message can be read by a consumer but not yet have its offset committed.
+
+---
+# Kafka Consumer Offset Commit: Auto Commit vs Manual Commi
+
+With:
+
+```python
+"enable.auto.commit": True
+```
+
+Kafka automatically commits offsets **periodically**. It does **not** wait for your business logic to finish successfully.
+
+### Example
+
+Suppose Kafka has:
+
+```text
+Partition 0
+
+offset 10 → Order A
+offset 11 → Order B
+```
+
+Your consumer receives offset `10`:
+
+```text
+poll()
+  ↓
+offset 10 received
+  ↓
+processing starts
+  ↓
+Exception
+```
+
+Now there are two possibilities.
+
+### Case 1: Exception happens BEFORE the auto-commit
+
+The offset may **not yet be committed**.
+
+After the consumer restarts, offset `10` can be received again.
+
+```text
+offset 10
+   ↓
+processing
+   ↓
+exception
+   ↓
+NO auto-commit yet
+   ↓
+restart
+   ↓
+offset 10 received again
+```
+
+### Case 2: Auto-commit happens BEFORE the exception
+
+This is the important problem.
+
+```text
+offset 10 received
+       ↓
+auto-commit happens
+       ↓
+offset 10 progress committed
+       ↓
+processing
+       ↓
+exception
+```
+
+Now the consumer group may already have advanced its committed position.
+
+After restart, Kafka can continue from the next position rather than redelivering offset `10`.
+
+So you can have:
+
+```text
+Kafka message
+     ↓
+offset committed
+     ↓
+ business processing failed
+```
+
+That's why **auto commit does not mean "commit after successful processing."**
+
+### Manual commit gives you control
+
+With:
+
+```python
+"enable.auto.commit": False
+```
+
+you decide:
+
+```python
+process_order(order)
+
+consumer.commit(message=message)
+```
+
+So:
+
+```text
+Receive
+   ↓
+Process
+   ↓
+SUCCESS ──→ commit
+```
+
+while:
+
+```text
+Receive
+   ↓
+Process
+   ↓
+Exception 
+   ↓
+NO commit
+```
+
+### The key idea
+
+**Auto commit:**
+
+"Commit consumer progress automatically according to the consumer's commit interval."
+
+**Manual commit:**
+
+"I will explicitly commit after my application decides processing succeeded."
+
+So if you're building something where **processing must succeed before Kafka progress is acknowledged**, manual commit gives you the control needed for that behavior.
 
 ---
 

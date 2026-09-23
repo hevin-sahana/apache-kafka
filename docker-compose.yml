@@ -55,18 +55,14 @@ services:
   api:
     build: .
     container_name: kafka-api
-
+    profiles: ["kafka-poc-1"]
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
-
     ports:
       - "8000:8000"
-
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-
     volumes:
       - ./logs:/app/logs
-
     depends_on:
       - kafka
 
@@ -74,9 +70,8 @@ services:
   consumer:
     build: .
     container_name: kafka-consumer
-
+    profiles: ["kafka-poc-1"]
     command: python -m app.consumer
-
     environment:
        KAFKA_BOOTSTRAP_SERVERS: kafka:29092
 
