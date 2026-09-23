@@ -1,14 +1,19 @@
 import json
 import logging
+import os
 
 from confluent_kafka import Consumer
 from utility.logging_config import configure_logging
 
+bootstrap_servers = os.getenv(
+    "KAFKA_BOOTSTRAP_SERVERS",
+    "localhost:9092"
+)
 
 logger = logging.getLogger(__name__)
 
 consumer = Consumer({
-    "bootstrap.servers": "localhost:9092",
+    "bootstrap.servers": bootstrap_servers,
     "group.id": "order-consumer-group",
     "auto.offset.reset": "earliest",
     "enable.auto.commit": False
