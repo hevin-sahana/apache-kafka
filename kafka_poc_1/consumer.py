@@ -3,7 +3,7 @@ import logging
 import os
 
 from confluent_kafka import Consumer
-from utility.logging_config import configure_logging
+from app.utility.logging_config import configure_logging
 
 bootstrap_servers = os.getenv(
     "KAFKA_BOOTSTRAP_SERVERS",

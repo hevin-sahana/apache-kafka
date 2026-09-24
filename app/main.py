@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from app.models import OrderRequest
 from app.producer import send_order
-from utility.logging_config import configure_logging
+from app.utility.logging_config import configure_logging
 
 configure_logging("poc-01")
 logger = logging.getLogger(__name__)
