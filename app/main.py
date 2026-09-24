@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from kafka_poc_1.router import router as kafka_poc_1
+from app.kafka_poc_1.router import router as kafka_poc_1
 
 app = FastAPI(
     title="Kafka POC",

@@ -3,8 +3,8 @@ import logging
 from fastapi import APIRouter
 
 from app.utility.logging_config import configure_logging
-from kafka_poc_1.models import OrderRequest
-from kafka_poc_1.producer import send_order
+from app.kafka_poc_1.models import OrderRequest
+from app.kafka_poc_1.producer import send_order
 
 router = APIRouter(tags=["kafka_poc_1"])
 configure_logging("poc-01")
