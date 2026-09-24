@@ -2,14 +2,10 @@ import json
 import logging
 import os
 from confluent_kafka import Producer
+
+from app.utility.kafka import bootstrap_servers
+
 logger = logging.getLogger(__name__)
-
-
-
-bootstrap_servers = os.getenv(
-    "KAFKA_BOOTSTRAP_SERVERS",
-    "localhost:9092"
-)
 
 producer = Producer({
     "bootstrap.servers": bootstrap_servers,
@@ -29,6 +25,7 @@ def delivery_report(err, message):
         f"partition={message.partition()} | "
         f"offset={message.offset()}"
     )
+
 
 def send_order(order: dict):
     logger.info(

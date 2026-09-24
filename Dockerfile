@@ -6,7 +6,10 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY kafka-poc-1/app ./app
+COPY app ./app
 
-# Copy shared utility package
-COPY utility ./utility
+RUN mkdir -p /app/logs
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
