@@ -262,7 +262,7 @@ Read ≠ Commit
 A message can be read by a consumer but not yet have its offset committed.
 
 ---
-# Kafka Consumer Offset Commit: Auto Commit vs Manual Commi
+# Kafka Consumer Offset Commit: Auto Commit vs Manual Commit
 
 With:
 

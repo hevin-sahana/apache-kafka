@@ -31,7 +31,7 @@ def send_order(order: dict):
     logger.info(
         f"Publishing order | order_id={order["order_id"]}")
     producer.produce(
-        topic="orders",
+        topic="poc-2-orders",
         value=json.dumps(order),
         callback=delivery_report
     )
