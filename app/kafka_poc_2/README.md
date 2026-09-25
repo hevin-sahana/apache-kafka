@@ -606,6 +606,96 @@ Group 2 → independently consumes topic
 
 The same records can therefore be consumed by both groups.
 
+---
+### Ideal Condition — 3 Partitions, 4 Consumers in Group 1
+
+Your setup is:
+
+```text
+consumer-1 ─┐
+consumer-2 ─┤
+consumer-4 ─┼── consumer_order_group_1
+consumer-5 ─┘
+
+consumer-3 ──── consumer_order_group_2
+```
+
+Assuming the topic has **3 partitions**:
+
+```text
+P0
+P1
+P2
+```
+
+### Expected behavior
+
+For `consumer_order_group_1`:
+
+| Consumer   | Group                    | Expected partition assignment |
+| ---------- | ------------------------ | ----------------------------- |
+| consumer-1 | `consumer_order_group_1` | P0 / P1 / P2                  |
+| consumer-2 | `consumer_order_group_1` | P0 / P1 / P2                  |
+| consumer-4 | `consumer_order_group_1` | P0 / P1 / P2                  |
+| consumer-5 | `consumer_order_group_1` | **No partition — idle**       |
+| consumer-3 | `consumer_order_group_2` | P0, P1, P2 independently      |
+
+The exact assignment of P0/P1/P2 among the first three consumers can vary after Kafka's group assignment/rebalance.
+
+### Ideal condition
+
+Because:
+
+```text
+Partitions = 3
+Consumers in Group 1 = 4
+```
+
+the maximum number of consumers that can actively consume partitions in that group at one time is **3**.
+
+Therefore:
+
+```text
+consumer-1 ──→ P0
+consumer-2 ──→ P1
+consumer-4 ──→ P2
+consumer-5 ──→ IDLE
+```
+
+This is an **ideal example**, not a guaranteed exact assignment. Kafka may choose a different three consumers.
+
+### Group 2
+
+`consumer-3` has a different group:
+
+```text
+consumer-3
+     │
+     ↓
+consumer_order_group_2
+     │
+ ┌───┼───┐
+ P0  P1  P2
+```
+
+So `consumer-3` can consume the same topic records independently of Group 1.
+
+### Key rule to add to your POC-2 docs
+
+> **Within a consumer group, one partition can be assigned to only one active consumer at a time. Therefore, if the number of consumers is greater than the number of partitions, some consumers will remain idle. If the number of partitions is greater than or equal to the number of consumers, each consumer can potentially receive a partition.**
+
+For your exact setup:
+
+```text
+3 partitions + 4 consumers
+        ↓
+3 consumers can be active
+1 consumer can be idle
+```
+
+This is a very good **ideal-condition test** to keep in POC-2 because it clearly demonstrates the relationship between **partition count and consumer count**.
+
+
 ------------------------------------------------------------------------
 
 ## 21. Key Learnings
@@ -633,7 +723,7 @@ The same records can therefore be consumed by both groups.
     consume that same partition.
 -   Producer-side partition selection and consumer-side partition
     assignment are separate stages.
-
+-   idle condition in kafka.
 ------------------------------------------------------------------------
 
 ## 22. POC-02 Final Flow

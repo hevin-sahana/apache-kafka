@@ -9,7 +9,7 @@ from app.utility.logging_config import configure_logging
 
 logger = logging.getLogger(__name__)
 
-TOPIC = "poc_2_orders_new"
+TOPIC = "poc_2_orders"
 
 
 def consume_orders(consumer_name, group_id, simulate_failure=False):

@@ -21,6 +21,24 @@ consumer_2 = subprocess.Popen(
     ]
 )
 
+consumer_4 = subprocess.Popen(
+    [
+        sys.executable,
+        consumer_script,
+        "consumer-4",
+        "consumer_order_group_1"
+    ]
+)
+
+consumer_5 = subprocess.Popen(
+    [
+        sys.executable,
+        consumer_script,
+        "consumer-5",
+        "consumer_order_group_1"
+    ]
+)
+
 consumer_3 = subprocess.Popen(
     [
         sys.executable,
@@ -32,4 +50,7 @@ consumer_3 = subprocess.Popen(
 
 consumer_1.wait()
 consumer_2.wait()
+consumer_4.wait()
+consumer_5.wait()
 consumer_3.wait()
+
