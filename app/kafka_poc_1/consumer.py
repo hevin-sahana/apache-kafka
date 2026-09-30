@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 
 from confluent_kafka import Consumer
 
@@ -18,7 +17,7 @@ consumer = Consumer({
     "enable.auto.commit": False
 })
 
-consumer.subscribe(["orders"])
+consumer.subscribe(["poc-1-orders"])
 
 
 def consume_orders(simulate_failure=False):

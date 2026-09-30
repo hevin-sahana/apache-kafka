@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+import time
+
 from confluent_kafka import Producer
 
 from app.utility.kafka import bootstrap_servers
@@ -31,9 +33,10 @@ def send_order(order: dict):
     logger.info(
         f"Publishing order | order_id={order["order_id"]}")
     producer.produce(
-        topic="poc-2-orders",
+        topic="poc-1-orders",
         value=json.dumps(order),
         callback=delivery_report
     )
-
-    producer.flush()
+    time.sleep(0.2)
+    remaining = producer.flush()
+    print(f"Messages remaining: {remaining}")
