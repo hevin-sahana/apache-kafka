@@ -1,21 +1,36 @@
 # apache-kafka
 --
-## What is kafka?
-Apache Kafka is an open-source distributed event streaming platform developed by LinkedIn and later donated to the Apache Software Foundation. It is used to handle large-scale real-time data streams efficiently and reliably.
 
-Kafka follows the publish-subscribe model, where producers send messages to topics and consumers read them. It provides high scalability, fault tolerance, and fast data processing, making it ideal for real-time data streaming and event-driven applications.
+## What is kafka?
+
+Apache Kafka is an open-source distributed event streaming platform developed
+by LinkedIn and later donated to the Apache Software Foundation. It is used to
+handle large-scale real-time data streams efficiently and reliably.
+
+Kafka follows the publish-subscribe model, where producers send messages to
+topics and consumers read them. It provides high scalability, fault tolerance,
+and fast data processing, making it ideal for real-time data streaming and
+event-driven applications.
 
 ## Need of Apache kafka.
-Modern applications generate huge amounts of real-time data from various sources and Traditional systems often struggle to process such large-scale data efficiently. Kafka solves these problems by providing:
+
+Modern applications generate huge amounts of real-time data from various
+sources and Traditional systems often struggle to process such large-scale data
+efficiently. Kafka solves these problems by providing:
 
 - **Real-Time Processing** → Processes events as soon as they arrive.
-- **Fault Tolerance** → Keeps copies of data so failures don't easily cause data loss.
-- **Scalability** → Can handle increasing data by adding more Kafka brokers/partitions.
-- **Event-Driven Architecture** → Applications can react to events instead of constantly asking for updates.
+- **Fault Tolerance** → Keeps copies of data so failures don't easily cause
+  data loss.
+- **Scalability** → Can handle increasing data by adding more Kafka
+  brokers/partitions.
+- **Event-Driven Architecture** → Applications can react to events instead of
+  constantly asking for updates.
 - **High Throughput** → Can handle a very large number of messages efficiently.
-- **Offset Management** → Consumers remember where they stopped and can continue from that position.
+- **Offset Management** → Consumers remember where they stopped and can
+  continue from that position.
 
 ---
+
 # Kafka Example – How Kafka Solves a Real-World Problem
 
 ## 1. Real-World Example
@@ -69,7 +84,8 @@ This approach creates several problems.
 
 The Order Service needs to know about multiple services.
 
-If a new service needs the order information, another connection may need to be added.
+If a new service needs the order information, another connection may need to be
+added.
 
 ### Service Failure
 
@@ -97,7 +113,8 @@ This increases the load on the system.
 
 ### Slow Processing
 
-The Order Service may need to wait for other services to respond before completing the overall operation.
+The Order Service may need to wait for other services to respond before
+completing the overall operation.
 
 ---
 
@@ -105,7 +122,8 @@ The Order Service may need to wait for other services to respond before completi
 
 Kafka introduces an event between the services.
 
-Instead of directly calling every service, the Order Service publishes an event to Kafka.
+Instead of directly calling every service, the Order Service publishes an event
+to Kafka.
 
 ```text
 Customer
@@ -155,9 +173,11 @@ Order Service
 
 The Order Service does not need to directly wait for the Notification Service.
 
-The event remains available in Kafka according to the topic's retention configuration.
+The event remains available in Kafka according to the topic's retention
+configuration.
 
-When the Notification Service becomes available again, it can consume the event.
+When the Notification Service becomes available again, it can consume the
+event.
 
 ---
 
@@ -192,14 +212,15 @@ The Inventory Service uses it to update inventory.
 
 The Notification Service uses it to notify the customer.
 
-The Order Service does not need to know the internal processing details of each service.
+The Order Service does not need to know the internal processing details of each
+service.
 
 ---
 
 # 6. How Kafka Overcomes the Problems
 
 | Problem                                      | Kafka Approach                                         |
-| -------------------------------------------- | ------------------------------------------------------ |
+|----------------------------------------------|--------------------------------------------------------|
 | Services are tightly connected               | Kafka provides an intermediary between services        |
 | Direct service-to-service communication      | Services communicate through events                    |
 | One service may be temporarily unavailable   | Events can remain available for consumers              |
@@ -251,7 +272,8 @@ Kafka acts as the **middle layer for event communication**.
 
 # 8. Simple Definition
 
-> **Kafka is a distributed event-streaming platform that allows applications to publish events and other applications to consume those events independently.**
+> **Kafka is a distributed event-streaming platform that allows applications to
+publish events and other applications to consume those events independently.**
 
 In this example:
 
@@ -268,7 +290,8 @@ Other Services = Consumers
 
 The main problem Kafka solves is:
 
-> **Instead of making every service directly communicate with every other service, services can publish and consume events through Kafka.**
+> **Instead of making every service directly communicate with every other
+service, services can publish and consume events through Kafka.**
 
 ```text
 Producer
@@ -285,13 +308,16 @@ Producer
 
 **Producer → Kafka → Consumer**
 
-After you understand this clearly, learn **Topic**, then **Partition**, then **Consumer Group**, and finally **Broker/Cluster** in more depth.
+After you understand this clearly, learn **Topic**, then **Partition**, then
+**Consumer Group**, and finally **Broker/Cluster** in more depth.
 
 
 ---
+
 ## Core Components
 
-**Producer:** A Producer is an application or service that sends messages/events to Kafka topic.
+**Producer:** A Producer is an application or service that sends
+messages/events to Kafka topic.
 
 **Kafka Broker:**
 A Kafka broker is a server that stores & managing data.
@@ -303,18 +329,22 @@ A topic in Kafka is a category or feed where messages are stored.
 An offset is a unique identifier for a message in a partition.
 
 **Consumer:**
-A Consumer is an application or service that reads messages/events from Kafka topic.
+A Consumer is an application or service that reads messages/events from Kafka
+topic.
 
 **Consumer Groups:**
-A Consumer Group is a group of consumers that read messages/events from the same topic.
+A Consumer Group is a group of consumers that read messages/events from the
+same topic.
 
 **Zookeeper:**
-Apache ZooKeeper is a system used to help manage and coordinate distributed systems.
+Apache ZooKeeper is a system used to help manage and coordinate distributed
+systems.
 ZooKeeper helped the Kafka brokers coordinate with each other.
 
 ---
 
-This diagram shows a **basic Kafka event-driven architecture** using an e-commerce order example.
+This diagram shows a **basic Kafka event-driven architecture** using an
+e-commerce order example.
 
 ```text
                     Order Service
@@ -343,7 +373,8 @@ When a customer places an order, it creates an event such as:
 Order Created
 ```
 
-The Order Service acts as the **producer** because it publishes the event to Kafka.
+The Order Service acts as the **producer** because it publishes the event to
+Kafka.
 
 ---
 
@@ -478,7 +509,9 @@ Payment   Inventory   Notification      ?
 
 ### The main concept
 
-> **The Order Service does not need to directly communicate with every downstream service. It publishes an event to Kafka, and interested services consume that event independently.**
+> **The Order Service does not need to directly communicate with every
+downstream service. It publishes an event to Kafka, and interested services
+consume that event independently.**
 
 For your current learning stage, remember this simple mapping:
 
@@ -492,3 +525,141 @@ Notification   → Consumer
 ```
 
 This is the basic **Producer → Kafka Topic → Consumer** model.
+
+---
+
+## Kafka Connect & Connector
+
+In Kafka, a **Connector** is simply a tool that helps **move data between Kafka
+and an external system** without you writing custom producer/consumer code.
+
+### Simple picture
+
+```text
+Database ──→ Kafka Connector ──→ Kafka
+                                  │
+                                  ↓
+                             Kafka Connector
+                                  │
+                                  ↓
+                              Elasticsearch
+```
+
+There are **two main types**:
+
+| Type                 | Purpose                 | Example               |
+|----------------------|-------------------------|-----------------------|
+| **Source Connector** | External system → Kafka | MySQL → Kafka         |
+| **Sink Connector**   | Kafka → External system | Kafka → Elasticsearch |
+
+### 1. Source Connector
+
+Suppose you have orders in MySQL:
+
+```text
+MySQL
+  ↓
+Debezium / JDBC Source Connector
+  ↓
+Kafka Topic: orders
+```
+
+The connector continuously reads data from MySQL and publishes it to Kafka.
+
+So you **don't need to write a Python Kafka producer** just to move MySQL data
+into Kafka.
+
+---
+
+### 2. Sink Connector
+
+Suppose Kafka has:
+
+```text
+Kafka Topic: orders
+        ↓
+     Sink Connector
+        ↓
+   Elasticsearch
+```
+
+The connector reads messages from Kafka and writes them to Elasticsearch.
+
+So you **don't need to write a Python Kafka consumer** just to transfer Kafka
+data to Elasticsearch.
+
+---
+
+### Where does Kafka Connect come in?
+
+This distinction is important:
+
+```text
+Kafka
+  │
+  └── Kafka Connect
+        │
+        ├── Source Connectors
+        │      └── MySQL → Kafka
+        │
+        └── Sink Connectors
+               └── Kafka → Elasticsearch
+```
+
+**Kafka Connect = framework/runtime**
+
+**Connector = plugin that tells Kafka Connect how to communicate with a
+particular external system.**
+
+For example:
+
+```text
+Kafka Connect
+    │
+    ├── MySQL Connector
+    ├── PostgreSQL Connector
+    ├── S3 Connector
+    ├── Elasticsearch Connector
+    └── MongoDB Connector
+```
+
+### One-line interview answer
+
+> **Kafka Connect is a framework for reliably integrating Kafka with external
+systems, while connectors are plugins that move data between Kafka and those
+systems.**
+
+For your POCs, think of it this way:
+
+```text
+Your Python Producer/Consumer
+        ↓
+You write the code
+
+Kafka Connector
+        ↓
+Connector handles the data movement for you
+```
+
+So **Connector ≠ Producer/Consumer**, although internally connectors use
+Kafka's producer/consumer mechanisms.
+
+
+---
+# Tools or plugin for connectors 
+ 
+| External System | Kafka Connect Plugin / Connector | Type | Data Flow | Example Use Case |
+|---|---|---|---|---|
+| MySQL | **Debezium MySQL Connector** | Source | MySQL → Kafka | Capture DB changes |
+| MySQL | **JDBC Sink Connector** | Sink | Kafka → MySQL | Store events in DB |
+| PostgreSQL | **Debezium PostgreSQL Connector** | Source | PostgreSQL → Kafka | CDC |
+| MongoDB | **Debezium MongoDB Connector** | Source | MongoDB → Kafka | Capture MongoDB changes |
+| MongoDB | **MongoDB Sink Connector** | Sink | Kafka → MongoDB | Store events in MongoDB |
+| Elasticsearch | **Elasticsearch Sink Connector** | Sink | Kafka → Elasticsearch | Search/indexing |
+| Amazon S3 | **Amazon S3 Sink Connector** | Sink | Kafka → S3 | Data lake |
+| Snowflake | **Snowflake Sink Connector** | Sink | Kafka → Snowflake | Data warehouse |
+| BigQuery | **BigQuery Sink Connector** | Sink | Kafka → BigQuery | Analytics |
+| Azure Blob | **Azure Blob Storage Sink Connector** | Sink | Kafka → Azure Blob | Cloud storage |
+| REST API | **HTTP/API Source Connector** | Source | API → Kafka | Ingest external API data |
+| MQTT | **MQTT Source Connector** | Source | MQTT → Kafka | IoT events |
+| RabbitMQ | **RabbitMQ Source Connector** | Source | RabbitMQ → Kafka | Messaging migration |
