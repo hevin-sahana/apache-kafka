@@ -663,3 +663,25 @@ Kafka's producer/consumer mechanisms.
 | REST API | **HTTP/API Source Connector** | Source | API → Kafka | Ingest external API data |
 | MQTT | **MQTT Source Connector** | Source | MQTT → Kafka | IoT events |
 | RabbitMQ | **RabbitMQ Source Connector** | Source | RabbitMQ → Kafka | Messaging migration |
+
+---
+
+## Kafka POC-05: Kafka Connect Source & Sink Connectors
+
+This POC demonstrates an end-to-end data pipeline without writing custom Kafka producer/consumer code:
+
+```text
+FastAPI (POST /poc/05/products)
+        ↓
+   Database (MySQL)
+        ↓
+  JDBC Source Connector (Kafka Connect)
+        ↓
+    Kafka Topic (`products`)
+        ↓
+Elasticsearch Sink Connector (Kafka Connect)
+        ↓
+ Elasticsearch Index (`products`)
+```
+
+See complete documentation, configuration details, and step-by-step instructions in [Kafka POC-05 README](app/kafka_poc_5/README.md).

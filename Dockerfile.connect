@@ -1,0 +1,14 @@
+FROM confluentinc/cp-kafka-connect:7.5.0
+
+RUN curl -L https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/2.7.3.Final/debezium-connector-mysql-2.7.3.Final-plugin.tar.gz \
+    -o /tmp/debezium.tar.gz \
+    && mkdir -p /usr/share/confluent-hub-components/debezium-connector-mysql \
+    && tar -xzf /tmp/debezium.tar.gz \
+       -C /usr/share/confluent-hub-components/debezium-connector-mysql \
+    && rm /tmp/debezium.tar.gz
+
+
+
+# Elasticsearch Sink Connector
+RUN confluent-hub install --no-prompt \
+    confluentinc/kafka-connect-elasticsearch:14.1.0

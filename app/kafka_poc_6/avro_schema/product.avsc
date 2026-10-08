@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "name": "Product",
+  "namespace": "com.kafka_poc_6.inventory",
+  "fields": [
+    {
+      "name": "id",
+      "type": "int"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "name": "price",
+      "type": "double"
+    },
+    {
+      "name": "quantity",
+      "type": "int"
+    },
+     {
+      "name": "category",
+      "type": "string",
+      "default": ""
+     },
+      {
+      "name": "discount_price",
+      "type": "double",
+      "default": 0.0
+    },
+     {
+      "name": "description",
+      "type": "string",
+      "default": ""
+    }
+
+  ]
+}

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POC 5 - Product Search</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --es-badge: #16a34a;
+            --db-badge: #d97706;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin: 0 0 10px 0;
+            color: var(--text);
+        }
+
+        .header p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .search-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .source-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .badge-elasticsearch {
+            background-color: var(--es-badge);
+        }
+
+        .badge-database {
+            background-color: var(--db-badge);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .results-table th, .results-table td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .results-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Inventory Search</h1>
+<!--            <p>Searches <strong>Elasticsearch</strong> first with automatic fallback to <strong>MySQL Database</strong></p>-->
+        </div>
+
+        <div class="search-card">
+            <form id="searchForm" class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search product by name or category (or leave blank for all)...">
+                <button type="submit" class="search-btn">Search</button>
+                <button type="button" id="resetBtn" class="search-btn" style="background: var(--text-muted);">All</button>
+            </form>
+        </div>
+
+        <div id="statusArea" class="status-container" style="display: none;">
+            <div id="resultCount" style="color: var(--text-muted); font-weight: 500;"></div>
+            <div id="sourceBadge" class="source-badge"></div>
+        </div>
+
+        <div id="resultsContainer"></div>
+    </div>
+
+    <script>
+        async function performSearch(query = '') {
+            const statusArea = document.getElementById('statusArea');
+            const resultCount = document.getElementById('resultCount');
+            const sourceBadge = document.getElementById('sourceBadge');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            resultsContainer.innerHTML = '<div class="no-results">Searching...</div>';
+            statusArea.style.display = 'none';
+
+            try {
+                const API_BASE = (location.port !== '8000') ? 'http://localhost:8000' : '';
+                const targetUrl =
+                    `${API_BASE}/poc/05/products/search?query=${encodeURIComponent(query)}`;
+                const res = await fetch(targetUrl);
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: Ensure FastAPI app is running on http://localhost:8000`);
+                }
+                const data = await res.json();
+
+                statusArea.style.display = 'flex';
+                resultCount.textContent = `Found ${data.total} product(s)`;
+
+                if (data.source === 'elasticsearch') {
+                    sourceBadge.className = 'source-badge badge-elasticsearch';
+                    sourceBadge.innerHTML = '⚡ Found via Elasticsearch';
+                } else {
+                    sourceBadge.className = 'source-badge badge-database';
+                    sourceBadge.innerHTML = '🗄️ Fallback from MySQL Database';
+                }
+
+                if (!data.products || data.products.length === 0) {
+                    resultsContainer.innerHTML =
+                        '<div class="no-results">No matching products found. Try creating a product first via POST /poc/05/create-product</div>';
+                    return;
+                }
+
+                let html = `
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                data.products.forEach(p => {
+                    html += `
+                        <tr>
+                            <td>${p.id || '-'}</td>
+                            <td><strong>${p.name || '-'}</strong></td>
+                            <td>${p.category || '-'}</td>
+                            <td>$${p.price ? Number(p.price).toFixed(2) : '0.00'}</td>
+                            <td>${p.quantity || 0}</td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table>';
+                resultsContainer.innerHTML = html;
+
+            } catch (err) {
+                console.error(err);
+                resultsContainer.innerHTML = `<div class="no-results" style="color: #ef4444;">Error performing search: ${err.message}</div>`;
+            }
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            performSearch(query);
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('searchInput').value = '';
+            performSearch('');
+        });
+
+        // Run initial load on page display
+        performSearch('');
+    </script>
+</body>
+</html>

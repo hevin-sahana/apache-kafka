@@ -48,42 +48,137 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: connect
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
 
     depends_on:
       - kafka
 
-  api:
-    build: .
-    container_name: kafka-api
+  mysql:
+    image: mysql:8.0
+    container_name: poc-mysql
+    hostname: mysql
 
     ports:
-      - "8000:8000"
+      - "13306:3306"
+
+    command:
+      - --server-id=1
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --binlog-row-image=FULL
 
     environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: poc_db
 
     volumes:
-      - ./app/logs:/app/logs
+      - mysql_data:/var/lib/mysql
+
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.18
+    container_name: poc-elasticsearch
+    hostname: elasticsearch
+
+    ports:
+      - "9200:9200"
+
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+
+  kafka-connect:
+    build:
+      context: .
+      dockerfile: Dockerfile.connect
+
+    container_name: poc-kafka-connect
+    hostname: kafka-connect
+
+    ports:
+      - "8083:8083"
+
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka:29092
+
+      CONNECT_REST_PORT: 8083
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+
+      CONNECT_GROUP_ID: kafka-connect-group
+
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: connect-status
+
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
+
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    container_name: schema-registry
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092
 
     depends_on:
       - kafka
+      - mysql
+      - elasticsearch
 
-
-  consumer:
-    build: .
-    container_name: kafka-consumer
-
-    command: python -m app.kafka_poc_1.consumer
-
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-
-    volumes:
-      - ./app/logs:/app/logs
-
-    depends_on:
-      - kafka
-
+#  api:
+#    build: .
+#    container_name: kafka-api
+#
+#    ports:
+#      - "8000:8000"
+#
+#    environment:
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+#      DATABASE_URL: mysql+pymysql://root:root123@mysql:3306/poc_db
+#
+#    volumes:
+#      - ./app/logs:/app/logs
+#
+#    depends_on:
+#      - kafka
+#      - mysql
+#
+#  consumer:
+#    build: .
+#    container_name: kafka-consumer
+#
+#    command: python -m app.kafka_poc_1.consumer
+#
+#    environment:
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+#
+#    volumes:
+#      - ./app/logs:/app/logs
+#
+#    depends_on:
+#      - kafka
 
 volumes:
   kafka_data:
+  mysql_data:
+  es_data:

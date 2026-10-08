@@ -1,0 +1,18 @@
+{
+  "name": "mysql-source",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.user": "root",
+    "database.password": "root123",
+    "database.hostname": "mysql",
+    "database.port": "3306",
+    "database.server.id": "184054",
+    "topic.prefix": "mysql",
+    "database.include.list": "poc_db",
+    "table.include.list": "poc_db.products",
+    "schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+    "schema.history.internal.kafka.topic": "schema-changes.poc_db",
+    "decimal.handling.mode": "double",
+    "snapshot.mode": "initial"
+  }
+}
