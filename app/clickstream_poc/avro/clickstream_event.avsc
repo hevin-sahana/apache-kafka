@@ -1,0 +1,42 @@
+{
+  "type": "record",
+  "name": "ClickstreamEvent",
+  "namespace": "com.demo.clickstream",
+  "fields": [
+    {
+      "name": "event_id",
+      "type": "string"
+    },
+    {
+      "name": "event_type",
+      "type": "string"
+    },
+    {
+      "name": "user_id",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "session_id",
+      "type": "string"
+    },
+    {
+      "name": "page_url",
+      "type": "string"
+    },
+    {
+      "name": "product_id",
+      "type": ["null", "string"],
+      "default": null
+    },
+    {
+      "name": "timestamp",
+      "type": "string"
+    },
+    {
+     "name": "product_name",
+     "type": ["null", "string"],
+     "default": null
+    }
+  ]
+}
