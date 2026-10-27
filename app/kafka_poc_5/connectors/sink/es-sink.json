@@ -14,6 +14,10 @@
     "errors.tolerance": "all",
     "errors.log.enable": "true",
     "errors.log.include.messages": "true",
-    "behavior.on.null.values": "DELETE"
+    "behavior.on.null.values": "DELETE",
+    "errors.deadletterqueue.topic.name": "elasticsearch-sink-dlq",
+    "errors.deadletterqueue.context.headers.enable": "true",
+    "errors.retry.timeout": "60000"
   }
 }
+

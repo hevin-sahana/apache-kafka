@@ -106,13 +106,13 @@ def update_mysql_connector():
     except FileNotFoundError:
         raise HTTPException(
             status_code=404,
-            detail="mysql-source.json not found"
+            detail="mysql-product-source.json not found"
         )
 
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=400,
-            detail="Invalid JSON in mysql-source.json"
+            detail="Invalid JSON in mysql-product-source.json"
         )
 
     except KeyError:
@@ -163,13 +163,13 @@ def update_elasticsearch_connector():
     except FileNotFoundError:
         raise HTTPException(
             status_code=404,
-            detail="es-sink.json not found"
+            detail="elasticsearch-product-sink.json not found"
         )
 
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=400,
-            detail="Invalid JSON in es-sink.json"
+            detail="Invalid JSON in elasticsearch-product-sink.json"
         )
 
     except KeyError:
@@ -226,7 +226,10 @@ def get_all_products():
 
 
 @router.get("/products/search")
-def search_products(query: str = ""):
+def search_products(
+    query: str = "",
+    db: Session = Depends(get_db)
+):
     q = (query or "").strip()
 
     if not q:
@@ -475,13 +478,13 @@ def restart_sink_connector():
     except FileNotFoundError:
         raise HTTPException(
             status_code=404,
-            detail="es-sink.json not found"
+            detail="elasticsearch-product-sink.json not found"
         )
 
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=400,
-            detail="Invalid JSON in es-sink.json"
+            detail="Invalid JSON in elasticsearch-product-sink.json"
         )
 
     except KeyError:
@@ -506,13 +509,13 @@ def restart_source_connector():
     except FileNotFoundError:
         raise HTTPException(
             status_code=404,
-            detail="mysql-source.json not found"
+            detail="mysql-product-source.json not found"
         )
 
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=400,
-            detail="Invalid JSON in mysql-source.json"
+            detail="Invalid JSON in mysql-product-source.json"
         )
 
     except KeyError:

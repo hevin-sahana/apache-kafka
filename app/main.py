@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.kafka_poc_5.db.base import Base
+
 from app.kafka_poc_5.db.database import engine
 from app.kafka_poc_1.router import router as kafka_poc_1
 from app.kafka_poc_2.router import router as kafka_poc_2
@@ -18,6 +19,8 @@ from app.clickstream_poc.router import router as clickstream_event
 from app.clickstream_poc.consumer import main as start_consumer
 
 from app.kafka_poc_5.product_model import Product
+from app.kafka_poc_8.product_model import Product
+
 
 logger = logging.getLogger(__name__)
 
